@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "inject.js 保存后跑解析测试",
+  "description": "修改 inject.js 或测试文件后，运行 node test/inject.test.js，失败时分析原因并修复",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["inject.js", "test/inject.test.js"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "运行 `node test/inject.test.js`。如果失败，找出是 inject.js 的解析逻辑还是测试用例的问题并修复，修复后再跑一遍确认通过。不要为了让测试通过而删除断言。"
+  }
+}

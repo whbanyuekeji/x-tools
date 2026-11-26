@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "防封号原则检查",
+  "description": "修改 content.js 或 inject.js 后，检查是否违反“不自动点击、不额外发请求”的原则",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["content.js", "inject.js", "manifest.json"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "检查刚才的改动是否违反 .kiro/steering/product.md 的核心原则：1) 是否对 X 的按钮调用了 click() 或派发了点击事件；2) 是否新增了网页本身不会发出的 fetch / XHR 请求；3) 是否把数据发送到本机以外；4) manifest.json 是否新增了权限。只报告发现的问题和所在行，没有问题就回复“未发现违反原则的改动”。"
+  }
+}
