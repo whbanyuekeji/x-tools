@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- X 关注管理：蓝紫渐变圆角底 + 人像 + 右下角“互相关注”双向箭头徽标 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d9bf0"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d9bf0"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#shine)"/>
+  <!-- 人像 -->
+  <circle cx="52" cy="46" r="19" fill="#ffffff"/>
+  <path d="M18 104 C18 80 33 70 52 70 C71 70 86 80 86 104 Z" fill="#ffffff"/>
+  <!-- 徽标：先画一圈底色把人像“切开”，再画白底圆 -->
+  <circle cx="92" cy="90" r="28" fill="#5b5be0"/>
+  <circle cx="92" cy="90" r="23" fill="#ffffff"/>
+  <!-- 双向箭头 -->
+  <g fill="none" stroke="url(#arrow)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 83 H103 M97 77 L103 83 L97 89"/>
+    <path d="M104 97 H81 M87 91 L81 97 L87 103"/>
+  </g>
+</svg>

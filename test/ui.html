@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>xf ui test</title></head>
+<body style="background:#eee">
+<p>界面测试页（模拟 chrome.storage 和 X 的数据）</p>
+<script>
+  // 模拟登录 cookie 和扩展 API
+  Object.defineProperty(document, 'cookie', { get: () => 'twid=u%3D999' });
+  // 存在 sessionStorage 里：刷新页面后数据还在（模拟“下次进入插件”）。?reset 清空
+  if (location.search.includes('reset')) sessionStorage.removeItem('xf-store');
+  const store = JSON.parse(sessionStorage.getItem('xf-store') || '{}');
+  const persist = () => sessionStorage.setItem('xf-store', JSON.stringify(store));
+  const listeners = [];
+  const fire = (ch) => listeners.forEach((f) => f(ch, 'local'));
+  const keys = (k) => (Array.isArray(k) ? k : [k]);
+  window.chrome = {
+    storage: {
+      local: {
+        get: async (k) => Object.fromEntries(keys(k).map((x) => [x, store[x] && JSON.parse(JSON.stringify(store[x]))])),
+        set: async (o) => {
+          const ch = {};
+          for (const [k, v] of Object.entries(o)) { ch[k] = { oldValue: store[k], newValue: JSON.parse(JSON.stringify(v)) }; store[k] = JSON.parse(JSON.stringify(v)); }
+          persist();
+          fire(ch);
+        },
+        remove: async (k) => { const ch = {}; for (const x of keys(k)) { ch[x] = { oldValue: store[x] }; delete store[x]; } persist(); fire(ch); },
+      },
+      onChanged: { addListener: (f) => listeners.push(f) },
+    },
+    runtime: { onMessage: { addListener: () => {} } },
+  };
+</script>
+<script src="../content.js"></script>
+<script>
+  const H = Date.now();
+  const send = (d) => window.postMessage({ source: 'xf-inject', ...d }, '*');
+  // 模拟“另一个标签页”用旧数据整份覆盖（writer 不同）
+  window.otherTabOverwrite = (stale) => chrome.storage.local.set({ xf_999: { ...stale, writer: 'other-tab' } });
+  if (!location.search.includes('reset')) { /* 刷新：不重新灌数据 */ } else
+  setTimeout(() => {
+    // 我自己
+    send({ kind: 'users', op: 'UserByScreenName', owner: null, list: [], others: [{ id: '999', handle: 'me', name: 'Me', followers: 321, friends: 6 }] });
+    // 第一次扫描关注列表（安装前已关注）
+    send({ kind: 'users', op: 'Following', owner: '999', others: [], list: [
+      { id: '1', handle: 'alice', name: 'Alice', followers: 150, followedBy: true },
+      { id: '2', handle: 'bob', name: 'Bob', followers: 250 },
+      { id: '3', handle: 'carol', name: 'Carol', followers: 90 },
+      { id: '4', handle: 'dave', name: 'Dave', followers: 1200 },
+    ] });
+    // 取关 carol：应该进黑名单
+    send({ kind: 'action', type: 'unfollow', user: { id: '3', handle: 'carol', name: 'Carol', followers: 90 } });
+  }, 100);
+</script>
+<!-- 模拟 X 页面上的「关注」按钮：carol 在黑名单里，按钮应该被标红 -->
+<button data-testid="3-follow">Follow carol</button>
+<button data-testid="4-follow">Follow dave</button>
+<script>
+  // 打开面板
+  setTimeout(() => document.getElementById('xf-root').shadowRoot.getElementById('fab').click(), 300);
+</script>
+</body>
+</html>
